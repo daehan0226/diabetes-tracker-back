@@ -1,26 +1,57 @@
-import { Controller, Post, Headers, Inject, UseGuards, Param, Res, Response } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Headers,
+  UseGuards,
+  Param,
+  HttpCode,
+  HttpStatus,
+  UnauthorizedException,
+  Logger,
+  Inject,
+} from '@nestjs/common';
 import { AuthProviderType } from './enums/authProviderType.enums';
-import { AuthProviderTypePipe } from '../../pipes/authProviderType.pipe'
-import { GoogleAuthenticationService } from './googleAuth.service';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthProviderTypePipe } from '../../pipes/authProviderType.pipe';
+import { AuthService } from './auth.service';
+import { AuthGuard } from '../../guards/auth.guard';
 import { TokenOutDto } from './dtos/TokenOut.dto';
+import { AuthUser } from 'src/decorators/authUser.decorator';
+import { ProfileDto } from './dtos/Profile.dto';
+import { IAuthProviderInterface } from './interfaces/IAuthProvider.interface';
+import { GoogleAuthService } from './googleAuth.service';
 
 @Controller('auth')
 export class AuthContoller {
+  private readonly logger = new Logger(AuthContoller.name);
   constructor(
-    private readonly _authService: GoogleAuthenticationService,
+    private readonly _authService: AuthService,
+    private readonly _googleAuthService: GoogleAuthService,
   ) {}
 
+  @Post('/me')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  async me(
+    @AuthUser() { userId, email, username, authProviderType },
+  ): Promise<ProfileDto> {
+    return new ProfileDto(userId, email, authProviderType, username);
+  }
+
   @Post(':provider')
-  // @UseGuards(AuthGuard('google'))
   async createToken(
     @Headers() headers,
     @Param('provider', new AuthProviderTypePipe()) provider: AuthProviderType,
-    ): Promise<TokenOutDto> {
-    const token = headers.authorization.replace('Bearer ', '')
-    const uid = await this._authService.authenticate(token)
-    const authToken = await this._authService.createToken(uid, provider);
-
-    return authToken
+  ): Promise<TokenOutDto> {
+    try {
+      const token = headers.authorization.replace('Bearer ', '');
+      const data = await this._googleAuthService.authenticate(token);
+      if (data) {
+        const authToken = await this._authService.createToken(data, provider);
+        return authToken;
+      }
+    } catch (e) {
+      this.logger.debug(`fail to create token: ${e}`);
+    }
+    throw new UnauthorizedException();
   }
 }
