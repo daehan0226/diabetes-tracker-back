@@ -18,14 +18,14 @@ import { TokenOutDto } from './dtos/TokenOut.dto';
 import { AuthUser } from 'src/decorators/authUser.decorator';
 import { ProfileDto } from './dtos/Profile.dto';
 import { IAuthProviderInterface } from './interfaces/IAuthProvider.interface';
-import { GoogleAuthService } from './googleAuth.service';
 
 @Controller('auth')
 export class AuthContoller {
   private readonly logger = new Logger(AuthContoller.name);
   constructor(
     private readonly _authService: AuthService,
-    private readonly _googleAuthService: GoogleAuthService,
+    @Inject('GoogleAuthService')
+    private readonly _googleAuthService: IAuthProviderInterface,
   ) {}
 
   @Post('/me')
