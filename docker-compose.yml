@@ -1,0 +1,42 @@
+version: "3.5"
+services:
+  proxy:
+    build:
+      context: ./proxy
+    container_name: "${PROXY}"
+    ports:
+      - "${PROXY_PORT}:80"
+    environment:
+      - "NEST1=${NEST1}"
+      - "NEST2=${NEST2}"
+      - "NEST_PORT=${NEST_PORT}"
+    volumes:
+      - ./proxy/log:/var/log/nginx
+    restart: "unless-stopped"
+    depends_on:
+      - nest1
+      - nest2
+
+  nest1:
+    build:
+      context: ./nest
+    container_name: "${NEST1}"
+    expose:
+      - "${NEST_PORT}"
+    restart: "unless-stopped"
+    # volumes:
+    #   - ../api/logs:/usr/src/app/logs
+    # env_file:
+    #   - ./.env
+
+  nest2:
+    build:
+      context: ./nest
+    container_name: "${NEST2}"
+    expose:
+      - "${NEST_PORT}"
+    restart: "unless-stopped"
+    # volumes:
+    #   - ../api/logs:/usr/src/app/logs
+    # env_file:
+    #   - ./.env
