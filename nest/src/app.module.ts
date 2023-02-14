@@ -18,11 +18,8 @@ import { WorkerModule } from './worker/worker.module';
     ReportModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        redis: {
-          host: configService.redisHost,
-          port: configService.redisPort,
-        },
+      useFactory: async ({ redis }: ConfigService) => ({
+        redis,
       }),
       inject: [ConfigService],
     }),

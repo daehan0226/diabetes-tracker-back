@@ -1,4 +1,4 @@
-import { Process, Processor } from '@nestjs/bull';
+import { OnQueueActive, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 
@@ -8,7 +8,6 @@ export class WorkerEmailProcessor {
 
   @Process()
   handleTask(job: Job) {
-    console.log(job);
     this.logger.debug(`Start job on`);
     const time = performance.now();
     let count = 0;
@@ -16,5 +15,14 @@ export class WorkerEmailProcessor {
       count++;
     }
     this.logger.debug(`job completed: ${performance.now() - time}`);
+  }
+
+  @OnQueueActive()
+  onActive(job: Job) {
+    this.logger.log(
+      `Processing job ${job.id} of type ${job.name} with data ${JSON.stringify(
+        job,
+      )}...`,
+    );
   }
 }

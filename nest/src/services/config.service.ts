@@ -42,12 +42,11 @@ export class ConfigService {
     return port;
   }
 
-  get redisHost(): string {
-    return process.env.REDIS_HOST ?? 'localhost';
-  }
-
-  get redisPort(): number {
-    return Number(process.env.REDIS_PORT ?? 6379);
+  get redis(): { host: string; port: number } {
+    return {
+      host: process.env.REDIS_HOST ?? 'localhost',
+      port: Number(process.env.REDIS_PORT ?? 6379),
+    };
   }
 
   get awsCredentials() {
