@@ -15,7 +15,7 @@ import { AuthProviderTypePipe } from '../../pipes/authProviderType.pipe';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '../../guards/auth.guard';
 import { TokenOutDto } from './dtos/TokenOut.dto';
-import { AuthUser } from 'src/decorators/authUser.decorator';
+import { AuthUser } from '@decorators/authUser.decorator';
 import { ProfileDto } from './dtos/Profile.dto';
 import { IAuthProviderInterface } from './interfaces/IAuthProvider.interface';
 
