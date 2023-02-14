@@ -7,24 +7,26 @@ import { BatchService } from './batch/batch.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { FileModule } from './modules/files/file.module';
 import { ReportModule } from './modules/report/report.module';
+import { ConfigService } from './services/config.service';
 import { WorkerModule } from './worker/worker.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     forwardRef(() => FileModule),
-    WorkerModule,
     AuthModule,
     ReportModule,
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      },
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.redisHost,
+          port: configService.redisPort,
+        },
+      }),
+      inject: [ConfigService],
     }),
-    BullModule.registerQueue({
-      name: 'email',
-    }),
+    WorkerModule,
   ],
   controllers: [AppController],
   providers: [AppService, BatchService],

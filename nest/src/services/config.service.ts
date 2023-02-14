@@ -42,6 +42,14 @@ export class ConfigService {
     return port;
   }
 
+  get redisHost(): string {
+    return process.env.REDIS_HOST ?? 'localhost';
+  }
+
+  get redisPort(): number {
+    return Number(process.env.REDIS_PORT ?? 6379);
+  }
+
   get awsCredentials() {
     const result = {
       accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,

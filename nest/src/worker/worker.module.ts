@@ -1,17 +1,13 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@root/services/config.service';
 import { WorkerEmailProcessor } from './worker.email.processor';
 import { WorkerFileProcessor } from './worker.file.processor';
 import { WorkerService } from './worker.service';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6369,
-      },
-    }),
     BullModule.registerQueue({
       name: 'email',
     }),
@@ -20,7 +16,7 @@ import { WorkerService } from './worker.service';
     }),
   ],
   controllers: [],
-  providers: [WorkerEmailProcessor, WorkerFileProcessor, WorkerService],
+  providers: [WorkerService, WorkerEmailProcessor, WorkerFileProcessor],
   exports: [WorkerService],
 })
 export class WorkerModule {}
